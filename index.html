@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HitoriCraft | Official Rank Store</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        .glow-card {
+            box-shadow: 0 0 25px -5px rgba(59, 130, 246, 0.15);
+        }
+        .glow-card:hover {
+            box-shadow: 0 0 30px -2px rgba(59, 130, 246, 0.3);
+        }
+        .qris-blur {
+            filter: blur(4px);
+            transition: filter 0.3s ease;
+        }
+        .qris-blur:hover {
+            filter: blur(0px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white">
+
+    <!-- Header Navigation -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-500/30">
+                    <i data-lucide="shield-check" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-slate-200 to-blue-400 bg-clip-text text-transparent">
+                        HITORICRAFT
+                    </h1>
+                    <p class="text-xs text-slate-400 font-medium">Official Hardcore Rank Store</p>
+                </div>
+            </div>
+
+            <!-- Admin Toggle Button -->
+            <div class="flex items-center space-x-3">
+                <div id="adminBadge" class="hidden bg-emerald-500/10 text-emerald-400 text-xs px-3 py-1.5 rounded-full border border-emerald-500/30 flex items-center gap-1.5 font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Mode Admin Aktif
+                </div>
+                <button id="adminBtn" onclick="openAdminModal()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs px-3.5 py-2 rounded-xl transition flex items-center gap-2 font-semibold">
+                    <i data-lucide="lock" class="w-4 h-4"></i>
+                    <span id="adminBtnText">Admin Login</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-6xl mx-auto px-4 py-10 w-full flex-grow">
+        
+        <!-- Banner Intro -->
+        <div class="text-center mb-10 space-y-3">
+            <span class="bg-blue-500/10 text-blue-400 text-xs font-bold px-3 py-1 rounded-full border border-blue-500/20 uppercase tracking-widest">
+                Survival Hardcore Series
+            </span>
+            <h2 class="text-3xl md:text-4xl font-black tracking-tight text-white">
+                Tingkatkan Pengalaman Survival-mu
+            </h2>
+            <p class="text-slate-400 text-sm max-w-lg mx-auto">
+                Dapatkan akses ke keunggulan mobilitas, fitur ekstra, dan keanggotaan eksklusif tanpa unsur <i>Pay-to-Win</i>.
+            </p>
+        </div>
+
+        <!-- Section 1: Username Input & Server Type -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-8 max-w-2xl mx-auto shadow-xl">
+            <label class="block text-sm font-bold text-slate-200 mb-2 flex items-center gap-2">
+                <i data-lucide="user" class="w-4 h-4 text-blue-400"></i>
+                Masukkan Username Minecraft Kamu
+            </label>
+            <div class="relative">
+                <input type="text" id="usernameInput" placeholder="Contoh: Hitori / .Hitori (Bedrock)" 
+                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono text-sm transition">
+            </div>
+            <p class="text-xs text-slate-500 mt-2 flex items-center gap-1">
+                <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                Pemain Bedrock Edition wajib gunakan tanda titik <b>.</b> di depan username.
+            </p>
+        </div>
+
+        <!-- Section 2: Cards Grid Rank -->
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                <i data-lucide="sparkles" class="w-5 h-5 text-amber-400"></i>
+                Pilihan Membership Rank
+            </h3>
+            <button id="addRankBtn" onclick="addNewRank()" class="hidden bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-2 rounded-xl transition flex items-center gap-1.5 font-semibold">
+                <i data-lucide="plus" class="w-4 h-4"></i> Tambah Rank Baru
+            </button>
+        </div>
+
+        <div id="ranksGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <!-- Dynamic Render Cards via Javascript -->
+        </div>
+
+        <!-- Section 3: Modal Payment QRIS -->
+        <div id="paymentModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 relative shadow-2xl animate-in fade-in zoom-in duration-200">
+                <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg bg-slate-800/50 hover:bg-slate-800 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+
+                <div class="text-center space-y-2 mb-6">
+                    <span class="bg-emerald-500/10 text-emerald-400 text-xs font-bold px-3 py-1 rounded-full border border-emerald-500/20">
+                        Pembayaran Instan via QRIS
+                    </span>
+                    <h3 class="text-xl font-bold text-white">Scan untuk Membayar</h3>
+                    <p class="text-xs text-slate-400">Gunakan GoPay, DANA, OVO, ShopeePay, atau Mobile Banking.</p>
+                </div>
+
+                <!-- Invoice Details Box -->
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 mb-6 space-y-2.5 text-xs">
+                    <div class="flex justify-between border-b border-slate-800/80 pb-2">
+                        <span class="text-slate-400">Target Username:</span>
+                        <span id="summaryUsername" class="font-bold font-mono text-blue-400"></span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-800/80 pb-2">
+                        <span class="text-slate-400">Item Produk:</span>
+                        <span id="summaryRank" class="font-bold text-white"></span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400">Total Nominal:</span>
+                        <span id="summaryPrice" class="font-black text-lg text-emerald-400"></span>
+                    </div>
+                </div>
+
+                <!-- QRIS Image Box -->
+                <div class="bg-white p-4 rounded-2xl flex flex-col items-center justify-center mb-6 shadow-inner relative group">
+                    <img id="qrisImage" src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=HITORICRAFT-DEFAULT-QRIS" alt="QRIS Code" class="w-48 h-48 object-contain">
+                    <div class="mt-2 text-[10px] text-slate-500 font-semibold tracking-wider uppercase flex items-center gap-1">
+                        <i data-lucide="qr-code" class="w-3.5 h-3.5"></i> QRIS NPS SG-INDONESIA
+                    </div>
+                </div>
+
+                <!-- Simulation Action Button -->
+                <div class="space-y-3">
+                    <button onclick="simulateSuccessPayment()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20">
+                        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                        Simulasi Bayar Berhasil
+                    </button>
+                    <p class="text-[11px] text-slate-500 text-center">
+                        Setelah pembayaran diverifikasi, rank akan langsung diproses via RCON ke server.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Modal Admin Login -->
+        <div id="adminModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 relative shadow-2xl">
+                <button onclick="closeAdminModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg bg-slate-800/50 hover:bg-slate-800 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+
+                <div class="text-center space-y-2 mb-6">
+                    <div class="w-12 h-12 bg-blue-600/10 text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-3 border border-blue-500/20">
+                        <i data-lucide="lock" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Login Admin</h3>
+                    <p class="text-xs text-slate-400">Masuk untuk mengedit data rank & QRIS toko.</p>
+                </div>
+
+                <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Username Admin</label>
+                        <input type="text" id="adminUser" required placeholder="admin" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+                        <input type="password" id="adminPass" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-600 text-sm focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div id="loginError" class="text-xs text-rose-400 text-center hidden">
+                        Username atau password salah!
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition">
+                        Masuk Ke Panel Admin
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 bg-slate-900/50 py-6 text-center text-xs text-slate-500">
+        <div class="max-w-6xl mx-auto px-4">
+            <p>© 2026 HitoriCraft Minecraft Server. Not affiliated with Mojang AB or Microsoft.</p>
+        </div>
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        // Default Config & Storage
+        const ADMIN_CONFIG = {
+            user: "admin",
+            pass: "admin123"
+        };
+
+        const DEFAULT_RANKS = [
+            {
+                id: "survivor",
+                name: "Survivor",
+                price: 10000,
+                color: "from-blue-600 to-cyan-500",
+                badgeColor: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+                features: ["Max 2 Sethomes", "1 Player Shopkeeper", "Akses /delhome", "Kecepatan Cooldown TP"],
+                qrisUrl: "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=HITORICRAFT-SURVIVOR-10000"
+            },
+            {
+                id: "operator",
+                name: "Operator",
+                price: 25000,
+                color: "from-purple-600 to-indigo-500",
+                badgeColor: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+                features: ["Semua Fitur Survivor", "Max 3 Sethomes", "3 Player Shopkeeper", "1 Custom Player Warp", "Fitur Aksesoris /hat"],
+                qrisUrl: "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=HITORICRAFT-OPERATOR-25000"
+            },
+            {
+                id: "vanguard",
+                name: "Vanguard",
+                price: 50000,
+                color: "from-amber-500 to-orange-500",
+                badgeColor: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+                features: ["Semua Fitur Operator", "Max 5 Sethomes", "5 Player Shopkeeper", "Enderchest Virtual (/enderchest)", "Priority Server Join Queue"],
+                qrisUrl: "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=HITORICRAFT-VANGUARD-50000"
+            },
+            {
+                id: "apex",
+                name: "Apex",
+                price: 100000,
+                color: "from-rose-600 to-red-500",
+                badgeColor: "bg-rose-500/10 text-rose-400 border-rose-500/20",
+                features: ["Semua Fitur Vanguard", "Max 7 Sethomes", "2 Slot Vault Virtual (/pv 2)", "Akses Radar /near (30 Block)", "Warna Nickname Custom", "Efek Partikel Trail Eksklusif"],
+                qrisUrl: "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=HITORICRAFT-APEX-100000"
+            }
+        ];
+
+        let ranksData = JSON.parse(localStorage.getItem('hitori_store_ranks')) || DEFAULT_RANKS;
+        let isAdminLoggedIn = false;
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            renderRanks();
+            lucide.createIcons();
+        });
+
+        // Render Cards Grid
+        function renderRanks() {
+            const grid = document.getElementById('ranksGrid');
+            grid.innerHTML = '';
+
+            ranksData.forEach((rank, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-900 border border-slate-800 rounded-3xl p-6 flex flex-col justify-between glow-card transition duration-300 relative group overflow-hidden";
+                
+                let featuresHtml = rank.features.map(f => `
+                    <li class="flex items-start gap-2 text-xs text-slate-300">
+                        <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+                        <span>${f}</span>
+                    </li>
+                `).join('');
+
+                card.innerHTML = `
+                    <div class="space-y-4 mb-6">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold px-3 py-1 rounded-full border ${rank.badgeColor}">
+                                ${rank.name}
+                            </span>
+                            ${isAdminLoggedIn ? `
+                                <div class="flex items-center gap-1">
+                                    <button onclick="editRank(${index})" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded-lg transition" title="Edit Rank">
+                                        <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                    <button onclick="deleteRank(${index})" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-rose-400 rounded-lg transition" title="Hapus Rank">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <div>
+                            <h4 class="text-2xl font-black text-white tracking-tight">${rank.name}</h4>
+                            <div class="text-xl font-extrabold text-emerald-400 mt-1">
+                                Rp ${rank.price.toLocaleString('id-ID')}
+                            </div>
+                        </div>
+
+                        <ul class="space-y-2.5 pt-4 border-t border-slate-800">
+                            ${featuresHtml}
+                        </ul>
+                    </div>
+
+                    <button onclick="buyRank('${rank.id}')" class="w-full bg-gradient-to-r ${rank.color} hover:opacity-95 text-white font-bold py-3 px-4 rounded-xl text-sm transition shadow-lg flex items-center justify-center gap-2">
+                        <i data-lucide="shopping-cart" class="w-4 h-4"></i> Beli Sekarang
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+
+            lucide.createIcons();
+        }
+
+        // Handle Buying Action
+        function buyRank(rankId) {
+            const username = document.getElementById('usernameInput').value.trim();
+            if (!username) {
+                alert('Silakan masukkan Username Minecraft kamu terlebih dahulu!');
+                document.getElementById('usernameInput').focus();
+                return;
+            }
+
+            const rank = ranksData.find(r => r.id === rankId);
+            if (!rank) return;
+
+            document.getElementById('summaryUsername').innerText = username;
+            document.getElementById('summaryRank').innerText = rank.name;
+            document.getElementById('summaryPrice').innerText = `Rp ${rank.price.toLocaleString('id-ID')}`;
+            document.getElementById('qrisImage').src = rank.qrisUrl;
+
+            document.getElementById('paymentModal').classList.remove('hidden');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.add('hidden');
+        }
+
+        function simulateSuccessPayment() {
+            const username = document.getElementById('summaryUsername').innerText;
+            const rank = document.getElementById('summaryRank').innerText;
+
+            alert(`🎉 PEMBAYARAN BERHASIL!\n\nRank [${rank}] berhasil ditambahkan ke username [${username}].\n\nCommand RCON Terkirim: /lp user ${username} parent set ${rank.toLowerCase()}`);
+            closePaymentModal();
+        }
+
+        // Admin System
+        function openAdminModal() {
+            if (isAdminLoggedIn) {
+                isAdminLoggedIn = false;
+                document.getElementById('adminBadge').classList.add('hidden');
+                document.getElementById('addRankBtn').classList.add('hidden');
+                document.getElementById('adminBtnText').innerText = "Admin Login";
+                renderRanks();
+                return;
+            }
+            document.getElementById('adminModal').classList.remove('hidden');
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.add('hidden');
+            document.getElementById('loginError').classList.add('hidden');
+        }
+
+        function handleAdminLogin(event) {
+            event.preventDefault();
+            const u = document.getElementById('adminUser').value;
+            const p = document.getElementById('adminPass').value;
+
+            if (u === ADMIN_CONFIG.user && p === ADMIN_CONFIG.pass) {
+                isAdminLoggedIn = true;
+                document.getElementById('adminBadge').classList.remove('hidden');
+                document.getElementById('addRankBtn').classList.remove('hidden');
+                document.getElementById('adminBtnText').innerText = "Logout Admin";
+                closeAdminModal();
+                renderRanks();
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        }
+
+        // CRUD Actions for Admin
+        function editRank(index) {
+            const rank = ranksData[index];
+            const newName = prompt("Edit Nama Rank:", rank.name);
+            if (!newName) return;
+
+            const newPrice = prompt("Edit Harga Rank (dalam Rupiah angka saja):", rank.price);
+            if (!newPrice) return;
+
+            const newQris = prompt("Edit URL Gambar QRIS (atau link QR):", rank.qrisUrl);
+            if (!newQris) return;
+
+            ranksData[index].name = newName;
+            ranksData[index].price = parseInt(newPrice);
+            ranksData[index].qrisUrl = newQris;
+
+            localStorage.setItem('hitori_store_ranks', JSON.stringify(ranksData));
+            renderRanks();
+        }
+
+        function deleteRank(index) {
+            if (confirm(`Apakah kamu yakin ingin menghapus rank "${ranksData[index].name}"?`)) {
+                ranksData.splice(index, 1);
+                localStorage.setItem('hitori_store_ranks', JSON.stringify(ranksData));
+                renderRanks();
+            }
+        }
+
+        function addNewRank() {
+            const name = prompt("Masukkan Nama Rank Baru:");
+            if (!name) return;
+
+            const price = prompt("Masukkan Harga (dalam angka Rupiah):");
+            if (!price) return;
+
+            const newRank = {
+                id: name.toLowerCase().replace(/\s+/g, '-'),
+                name: name,
+                price: parseInt(price) || 10000,
+                color: "from-blue-600 to-indigo-600",
+                badgeColor: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+                features: ["Fitur dasar rank baru"],
+                qrisUrl: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=HITORICRAFT-${name.toUpperCase()}-${price}`
+            };
+
+            ranksData.push(newRank);
+            localStorage.setItem('hitori_store_ranks', JSON.stringify(ranksData));
+            renderRanks();
+        }
+    </script>
+</body>
+</html>
